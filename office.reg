@@ -1,0 +1,147 @@
+Windows Registry Editor Version 5.00
+
+; Ajustes de registro para o Office 2019 (Click-to-Run) no GE-Proton 11.
+; Adaptado de https://github.com/Tombert/office365_flake (ms365.sh, apply_registry/install_shims).
+
+[-HKEY_CURRENT_USER\Software\Wine\Direct2D]
+
+; O instalador C2R exige a plataforma de licenciamento SPP: marca-a como presente.
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform]
+"Version"="10.0.19041.1"
+
+; Segoe UI (fonte da interface do Office) -> Selawik, substituta open-source da Microsoft.
+[HKEY_CURRENT_USER\Software\Wine\Fonts\Replacements]
+"Segoe UI"="Selawik"
+"Segoe UI Semibold"="Selawik Semibold"
+"Segoe UI Semilight"="Selawik Semilight"
+"Segoe UI Light"="Selawik Light"
+
+; appxdeploymentclient/hvsimanagementapi: stubs do Wine que derrubam o OfficeClickToRun; desliga.
+; sppc/ole32: shims nativos (dll/). ole32_wine.dll e a copia do ole32 original do Proton.
+[HKEY_CURRENT_USER\Software\Wine\DllOverrides]
+"appxdeploymentclient"=""
+"hvsimanagementapi"=""
+"sppc"="native"
+"ole32"="native,builtin"
+; d2d1 do Wine 11.16 (assinatura de builtin apagada): o d2d1 do Wine 11.0 ignora o fill mode de
+; geometry groups e os controles da faixa de opcoes viram blocos sem texto.
+"d2d1"="native"
+"winemenubuilder.exe"=""
+
+; O Setup.exe precisa do stub do PackageManager para nao abortar.
+[HKEY_CURRENT_USER\Software\Wine\AppDefaults\setup.exe\DllOverrides]
+"appxdeploymentclient"="builtin"
+
+; Shim carregado em todo processo (o Excel nunca carrega o ole32).
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Windows]
+"AppInit_DLLs"="ms365shim.dll"
+"LoadAppInit_DLLs"=dword:00000001
+
+; CLSID_CUIAutomationRegistrar, que o Wine nao tem (crash ao focar um documento).
+[HKEY_CURRENT_USER\Software\Classes\CLSID\{6E29FABF-9977-42D1-8D0E-CA7E61AD87E6}]
+@="ms365 UIAutomationRegistrar"
+
+[HKEY_CURRENT_USER\Software\Classes\CLSID\{6E29FABF-9977-42D1-8D0E-CA7E61AD87E6}\InprocServer32]
+@="C:\\windows\\system32\\ms365uia.dll"
+"ThreadingModel"="Both"
+
+[HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{6E29FABF-9977-42D1-8D0E-CA7E61AD87E6}]
+@="ms365 UIAutomationRegistrar"
+
+[HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{6E29FABF-9977-42D1-8D0E-CA7E61AD87E6}\InprocServer32]
+@="C:\\windows\\system32\\ms365uia.dll"
+"ThreadingModel"="Both"
+
+; Login: sem o Web Account Manager (WinRT ausente no Wine), usa o fluxo via navegador (WebView2).
+[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\Identity]
+"EnableADAL"=dword:00000001
+"DisableADALatopWAMOverride"=dword:00000001
+"DisableAADWAM"=dword:00000001
+"DisableMSAWAM"=dword:00000001
+"DisableOneAuth"=dword:00000000
+
+[HKEY_CURRENT_USER\Software\Policies\Microsoft\Office\16.0\Common\Identity]
+"EnableADAL"=dword:00000001
+"DisableADALatopWAMOverride"=dword:00000001
+"DisableAADWAM"=dword:00000001
+"DisableMSAWAM"=dword:00000001
+
+[HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Office\16.0\Common\Identity]
+"EnableADAL"=dword:00000001
+"DisableADALatopWAMOverride"=dword:00000001
+"DisableAADWAM"=dword:00000001
+"DisableMSAWAM"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\ExperimentConfigs\ExternalFeatureOverrides\word]
+"Microsoft.Office.Identity.TestGate.DisableBrokerForOneAuth"="true"
+"Microsoft.Office.Identity.FG.IsWebView2ForOneAuthEnabled"="true"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\ExperimentConfigs\ExternalFeatureOverrides\excel]
+"Microsoft.Office.Identity.TestGate.DisableBrokerForOneAuth"="true"
+"Microsoft.Office.Identity.FG.IsWebView2ForOneAuthEnabled"="true"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\ExperimentConfigs\ExternalFeatureOverrides\powerpoint]
+"Microsoft.Office.Identity.TestGate.DisableBrokerForOneAuth"="true"
+"Microsoft.Office.Identity.FG.IsWebView2ForOneAuthEnabled"="true"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\ExperimentConfigs\ExternalFeatureOverrides\onenote]
+"Microsoft.Office.Identity.TestGate.DisableBrokerForOneAuth"="true"
+"Microsoft.Office.Identity.FG.IsWebView2ForOneAuthEnabled"="true"
+
+; Salvar/abrir localmente, em Documentos do usuario do Wine (compartilhe ~/Documents do host ali), e nao no OneDrive.
+[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\General]
+"PreferCloudSaveLocations"=dword:00000000
+
+[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Options]
+"DefaultPath"="C:\\users\\steamuser\\Documents"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Word\Options]
+"DOC-PATH"="C:\\users\\steamuser\\Documents"
+
+[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\PowerPoint\RecentFolderList]
+"Default"="C:\\users\\steamuser\\Documents"
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Office\ClickToRun\Configuration]
+"SharedComputerLicensing"="0"
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Office\ClickToRun\Updates]
+"UpdatesSkuToSkuBlocked"="1"
+
+; Licenciamento por token ("vNext"): licencia pela conta Microsoft, sem validar o SPP do Windows.
+[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Common\Licensing\LicensingNext]
+"HomeStudent2019Retail"=dword:00000002
+
+; OneNote: o objeto de tinta do Tablet PC (CLSID_InkDisp) e um stub no Wine e o OneNote conclui que
+; esta num Windows Server sem a "Experiencia Desktop". ms365uia.dll serve um InkDisp vazio.
+[HKEY_CURRENT_USER\Software\Classes\CLSID\{937C1A34-151D-4610-9CA6-A8CC9BDB5D83}]
+@="ms365 InkDisp"
+
+[HKEY_CURRENT_USER\Software\Classes\CLSID\{937C1A34-151D-4610-9CA6-A8CC9BDB5D83}\InprocServer32]
+@="C:\\windows\\system32\\ms365uia.dll"
+"ThreadingModel"="Both"
+
+[HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{937C1A34-151D-4610-9CA6-A8CC9BDB5D83}]
+@="ms365 InkDisp"
+
+[HKEY_LOCAL_MACHINE\Software\Classes\CLSID\{937C1A34-151D-4610-9CA6-A8CC9BDB5D83}\InprocServer32]
+@="C:\\windows\\system32\\ms365uia.dll"
+"ThreadingModel"="Both"
+
+; OneNote: a interface (React Native) cria um HttpClient do WinRT ao abrir; o Wine nao tem
+; Windows.Web.Http. ms365shim.dll serve substitutos (as requisicoes falham como "sem conexao").
+[HKEY_LOCAL_MACHINE\Software\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Web.Http.Filters.HttpBaseProtocolFilter]
+"DllPath"="C:\\windows\\system32\\ms365shim.dll"
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Web.Http.HttpClient]
+"DllPath"="C:\\windows\\system32\\ms365shim.dll"
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Web.Http.HttpMethod]
+"DllPath"="C:\\windows\\system32\\ms365shim.dll"
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Web.Http.HttpRequestMessage]
+"DllPath"="C:\\windows\\system32\\ms365shim.dll"
+
+; OneNote: contadores de crash que disparam "Como deseja iniciar o OneNote?"
+[HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\OneNote\General]
+"ConsecutiveBootCrashes"=dword:00000000
+"ConsecutiveEarlyCrashes"=dword:00000000
