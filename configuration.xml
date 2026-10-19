@@ -10,6 +10,6 @@
     </Product>
   </Add>
   <Updates Enabled="FALSE" />
-  <Display Level="Full" AcceptEULA="TRUE" />
+  <Display Level="Full" />
   <Logging Level="Standard" Path="C:\odt\logs" />
 </Configuration>

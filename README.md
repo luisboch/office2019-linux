@@ -64,9 +64,9 @@ Based on [Tombert/office365_flake](https://github.com/Tombert/office365_flake) (
    object (`CLSID_InkDisp`), a stub in Wine, and concludes it is on Windows Server. `office.reg`
    registers the empty `InkDisp` from `ms365uia.dll` and the `Windows.Web.Http` stand-ins from
    `ms365shim.dll` (OneNote's UI creates an `HttpClient` on start).
-9. The installer leaves Click-to-Run services running. When "You're all set!" appears, close the
-   window; if the script does not return, kill the Wine processes:
-   `pkill -9 -f 'wineserver|\.exe'`.
+9. `setup.exe /configure` never returns on its own: the Click-to-Run services keep running and the
+   "You're all set!" window stays open. `install-office.sh` waits for `WINWORD.EXE` and the version
+   written to the registry (`ClickToRun\Configuration\VersionToReport`), then stops Wine.
 10. **Excel always shows the previous frame** (Delete does not clear the cells until the selection
     moves, the formula bar shows the previous cell's value, the start screen's hover highlight
     trails the mouse). Office's child windows draw with Direct3D (DXVK → Vulkan), and Wine renders
@@ -87,21 +87,20 @@ Based on [Tombert/office365_flake](https://github.com/Tombert/office365_flake) (
    ./build-shims.sh ~/path/to/GE-Proton11-7
    ```
 2. **Sandbox/workspace** of type `windows_proton`, GE-Proton11-7, with network, X/GPU and audio.
-   Make this folder reachable inside it and share the host's Documents folder as the prefix's
-   `drive_c/users/steamuser/Documents` (Office saves there by default). Use `setup-prefix.sh` as the
-   install command.
+   Copy this folder into the workspace's home (in Lock-In: the workspace files →
+   `~/office2019-linux`) and share the host's Documents folder as the prefix's
+   `drive_c/users/steamuser/Documents` (Office saves there by default). Install command:
+   `bash "$HOME/office2019-linux/install-all.sh"`.
 3. **Language:** `configuration.xml` installs Portuguese (`pt-br`). For another language, change
    `Language ID` (e.g. `en-us`).
-4. Inside the sandbox, from this folder:
+4. Inside the sandbox, from this folder, everything in one go (this is what the workspace's install
+   command can run):
    ```bash
-   bash install-shims.sh
+   bash install-all.sh
    ```
-   ```bash
-   bash install-office.sh
-   ```
-   ```bash
-   bash postinstall.sh
-   ```
+   It runs `setup-prefix.sh`, `install-shims.sh`, `install-office.sh` and `postinstall.sh` in
+   order, unattended, and deletes the packages the ODT downloaded at the end. The steps can also be
+   run one by one.
 5. **Launchers** (run with `proton run`):
    - Word: `"$WINEPREFIX/drive_c/Program Files/Microsoft Office/root/Office16/WINWORD.EXE" /q`
    - Excel: `"$WINEPREFIX/drive_c/Program Files/Microsoft Office/root/Office16/EXCEL.EXE"`
@@ -109,7 +108,8 @@ Based on [Tombert/office365_flake](https://github.com/Tombert/office365_flake) (
    - OneNote: `"$WINEPREFIX/drive_c/Program Files/Microsoft Office/root/Office16/ONENOTE.EXE"`
 6. **Activation:** open Word, click the blue **Sign in** button (it may show no text before `d2d1`
    is in place) and sign in with the account Office 2019 is registered to. Do **not** use "I have
-   a product key". Check **File → Account**: "Microsoft Office Home and Student 2019".
+   a product key". If Office shows Microsoft's licence terms, accept them. Check
+   **File → Account**: "Microsoft Office Home and Student 2019".
 
 ## Maintenance
 
@@ -150,7 +150,8 @@ Valve's `proton_11.0` and in Wine master (11.20).
 | `setup-prefix.sh` | sandbox | Proton prefix + `corefonts msxml6 riched20 gdiplus webview2 win10` |
 | `install-shims.sh` | sandbox | copies the shims to `system32`, installs fonts and the Vulkan layer, applies `office.reg`, turns Xalia off |
 | `configuration.xml` | — | ODT configuration (Home & Student 2019, 64-bit, build 20326, pt-BR) |
-| `install-office.sh` | sandbox | downloads the official ODT and runs `/download` + `/configure` |
+| `install-all.sh` | sandbox | unattended full install (the four scripts below, in order) |
+| `install-office.sh` | sandbox | downloads the official ODT, runs `/download` + `/configure` and stops Wine when done |
 | `postinstall.sh` | sandbox | mirrors the VFS, registers MSI components and FM20, reapplies the registry |
 | `office.reg` | — | DLL overrides, sign-in without WAM, `LicensingNext`, OneNote, default folders |
 | `dll/`, `fonts/`, `vulkan/` | — | prebuilt binaries (for GE-Proton11-7) |
