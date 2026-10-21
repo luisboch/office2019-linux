@@ -33,7 +33,7 @@ Baseada no trabalho de [Tombert/office365_flake](https://github.com/Tombert/offi
 ## Requisitos
 
 - GE-Proton11-7 (os binários de `dll/` foram gerados para ele).
-- Os scripts que rodam "no sandbox" esperam o ambiente que o Lock-In monta para um workspace
+- Os scripts que rodam "no sandbox" esperam o ambiente que o [Lock-In](https://gitlab.com/luis.c.boch/lockin) monta para um workspace
   `windows_proton`: `$WINEPREFIX` (prefixo), `$PROTON_DIR` (diretório do GE-Proton), o comando
   `proton` no `PATH` (equivale a `"$PROTON_DIR/proton"` com `STEAM_COMPAT_*` apontando para o
   prefixo), `winetricks`, rede e acesso ao X/GPU. Com outro sandbox ou sem sandbox, defina essas
@@ -83,6 +83,11 @@ Baseada no trabalho de [Tombert/office365_flake](https://github.com/Tombert/offi
     Relatado em [ValveSoftware/Proton#10284](https://github.com/ValveSoftware/Proton/issues/10284).
 
 ## Passo a passo
+
+**Com um modelo do Lock-In:** um workspace do Lock-In com esta receita pode ser salvo como modelo
+(`.model.zip`: a receita e as configurações do workspace, sem o prefixo do Wine e sem o Office).
+Ao importá-lo, o Lock-In cria o workspace e roda o `install-all.sh` sozinho; espere terminar
+(20-40 min) e vá para o passo 6. Os passos abaixo montam o mesmo workspace à mão.
 
 1. **Shims** (host; opcional, `dll/` e `vulkan/` já vêm prontos para GE-Proton11-7):
    ```bash
