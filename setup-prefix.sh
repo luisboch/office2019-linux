@@ -35,9 +35,21 @@ find "$WINEPREFIX/drive_c" -type l -lname "$PROTON_DIR/*" -print0 | while IFS= r
   cp --remove-destination "$(readlink -f "$l")" "$l" && chmod u+w "$l"
 done
 
-winetricks -q corefonts msxml6 riched20 gdiplus
+# O wineserver as vezes fecha no momento em que o winetricks abre o proximo processo
+# ("recvmsg: Connection reset by peer") e o winetricks aborta. Ele so marca um pacote como
+# instalado quando termina, entao repetir refaz apenas o que faltou.
+wt() {
+  for i in 1 2 3; do
+    winetricks -q "$@" && return 0
+    echo "winetricks $* falhou (tentativa $i de 3)."
+    "$PROTON_DIR/files/bin/wineserver" -k 2>/dev/null || true
+    sleep 5
+  done
+  return 1
+}
+wt corefonts msxml6 riched20 gdiplus
 # WebView2: renderiza a tela de login da conta Microsoft
-winetricks -q webview2
-winetricks -q win10
+wt webview2
+wt win10
 rm -rf "$HOME/.cache/winetricks"
 echo "Prefixo pronto."
