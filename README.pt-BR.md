@@ -88,8 +88,10 @@ Baseada no trabalho de [Tombert/office365_flake](https://github.com/Tombert/offi
 `office-2019.model.zip` da [última release](https://github.com/luisboch/office2019-linux/releases/latest)
 e importe-o no Lock-In. O modelo traz só esta receita e as configurações do workspace (sem prefixo
 do Wine, nada da Microsoft); ao importá-lo, o Lock-In cria o workspace e roda o `install-all.sh`
-sozinho. Espere terminar (20-40 min, ~3,5 GB de download) e vá para o passo 6. Os passos abaixo
-montam o mesmo workspace à mão.
+sozinho. Espere terminar (20-40 min, ~3,5 GB de download) e vá para o passo 6.
+
+Os passos abaixo montam o mesmo workspace à mão e chegam exatamente ao mesmo resultado: o modelo só
+poupa os cliques de criar o workspace, copiar a receita e preencher as configurações.
 
 1. **Shims** (host; opcional, `dll/` e `vulkan/` já vêm prontos para GE-Proton11-7):
    ```bash

@@ -86,8 +86,10 @@ Based on [Tombert/office365_flake](https://github.com/Tombert/office365_flake) (
 `office-2019.model.zip` from the [latest release](https://github.com/luisboch/office2019-linux/releases/latest)
 and import it in Lock-In. The template holds only this recipe and the workspace's settings (no
 Wine prefix, nothing from Microsoft); importing it creates the workspace and runs `install-all.sh`
-by itself. Wait for it to finish (20-40 min, ~3.5 GB download) and go to step 6. The steps below
-build the same workspace by hand.
+by itself. Wait for it to finish (20-40 min, ~3.5 GB download) and go to step 6.
+
+The steps below build the same workspace by hand and end in exactly the same result: the template
+only saves the clicks of creating the workspace, copying the recipe and filling in its settings.
 
 1. **Shims** (host; optional, `dll/` and `vulkan/` ship prebuilt for GE-Proton11-7):
    ```bash
